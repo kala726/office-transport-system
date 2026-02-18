@@ -35,7 +35,7 @@ const Members = () => {
     'Ratnapura', 'Trincomalee', 'Vavuniya'
   ];
 
-  const departments = ['IT', 'HR', 'Finance', 'Marketing', 'Operations', 'Sales', 'Admin', 'Management'];
+  
   const statuses = ['Active', 'On Leave', 'Inactive'];
 
   const handleInputChange = (e) => {
