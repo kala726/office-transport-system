@@ -8,19 +8,18 @@ const TripPlanning = () => {
   // Sample Members Data (වැඩිපුර members)
   const [members] = useState([
     
-    { id: 16, memberId: 'EMP016', name: 'Muttiah Muralitharan', district: 'Kandy', town: 'Kandy City', phone: '+94 77 678 9012', status: 'Active' },
+    
   ]);
 
   // Sample Drivers Data
   const [drivers] = useState([
-    { id: 1, name: 'John Doe', licenseNo: 'DL-1234', phone: '+94 77 234 5678', experience: 8, status: 'Available' },
+   
    
   ]);
 
   // Sample Vehicles Data
   const [vehicles] = useState([
-    { id: 1, registrationNo: 'ABC-1234', type: 'Bus', capacity: 30, driver: 'John Doe', status: 'Active' },
- 
+  
   ]);
 
   // States
