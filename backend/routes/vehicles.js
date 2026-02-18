@@ -6,9 +6,9 @@ const Vehicle = require('../models/Vehicle');
 router.get('/', async (req, res) => {
   try {
     const vehicles = await Vehicle.find();
-    res.json(vehicles);
+    res.json({ success: true, data: vehicles });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
@@ -17,9 +17,9 @@ router.post('/', async (req, res) => {
   try {
     const vehicle = new Vehicle(req.body);
     await vehicle.save();
-    res.status(201).json(vehicle);
+    res.status(201).json({ success: true, data: vehicle });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400).json({ success: false, message: error.message });
   }
 });
 
@@ -27,9 +27,9 @@ router.post('/', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     await Vehicle.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Vehicle deleted' });
+    res.json({ success: true, message: 'Vehicle deleted' });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 

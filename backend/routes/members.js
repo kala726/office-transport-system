@@ -7,7 +7,7 @@ const Member = require('../models/Member');
 router.get('/', async (req, res) => {
   try {
     const members = await Member.find().sort({ createdAt: -1 });
-    res.status(200).json({
+    res.json({
       success: true,
       count: members.length,
       data: members
@@ -35,7 +35,7 @@ router.get('/:id', async (req, res) => {
       });
     }
     
-    res.status(200).json({
+    res.json({
       success: true,
       data: member
     });
@@ -53,18 +53,37 @@ router.get('/:id', async (req, res) => {
 // POST /api/members
 router.post('/', async (req, res) => {
   try {
-    // Check if member ID already exists (if provided)
-    if (req.body.memberId) {
-      const existingMember = await Member.findOne({ memberId: req.body.memberId });
-      if (existingMember) {
-        return res.status(400).json({
-          success: false,
-          message: 'Member with this ID already exists'
-        });
-      }
+    const { memberId, name, district, nearTown, phone, email, department, designation, status } = req.body;
+
+    // Validation
+    if (!memberId || !name || !district || !nearTown || !phone) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide all required fields: memberId, name, district, nearTown, phone'
+      });
     }
 
-    const member = new Member(req.body);
+    // Check if memberId already exists
+    const existingMember = await Member.findOne({ memberId });
+    if (existingMember) {
+      return res.status(400).json({
+        success: false,
+        message: 'Member with this ID already exists'
+      });
+    }
+
+    const member = new Member({
+      memberId,
+      name,
+      district,
+      nearTown,
+      phone,
+      email,
+      department,
+      designation,
+      status: status || 'Active'
+    });
+
     await member.save();
     
     res.status(201).json({
@@ -75,6 +94,7 @@ router.post('/', async (req, res) => {
   } catch (error) {
     console.error('Error creating member:', error);
     
+    // Handle validation errors
     if (error.name === 'ValidationError') {
       const messages = Object.values(error.errors).map(val => val.message);
       return res.status(400).json({
@@ -96,10 +116,12 @@ router.post('/', async (req, res) => {
 // PUT /api/members/:id
 router.put('/:id', async (req, res) => {
   try {
-    // Check if member ID is being changed and if it already exists
-    if (req.body.memberId) {
+    const { memberId, name, district, nearTown, phone, email, department, designation, status } = req.body;
+
+    // Check if memberId is being changed and if it already exists
+    if (memberId) {
       const existingMember = await Member.findOne({ 
-        memberId: req.body.memberId,
+        memberId,
         _id: { $ne: req.params.id }
       });
       
@@ -113,7 +135,17 @@ router.put('/:id', async (req, res) => {
 
     const member = await Member.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      {
+        memberId,
+        name,
+        district,
+        nearTown,
+        phone,
+        email,
+        department,
+        designation,
+        status
+      },
       { new: true, runValidators: true }
     );
     
@@ -124,7 +156,7 @@ router.put('/:id', async (req, res) => {
       });
     }
     
-    res.status(200).json({
+    res.json({
       success: true,
       message: 'Member updated successfully',
       data: member
@@ -162,7 +194,7 @@ router.delete('/:id', async (req, res) => {
       });
     }
     
-    res.status(200).json({
+    res.json({
       success: true,
       message: 'Member deleted successfully'
     });
@@ -182,7 +214,7 @@ router.get('/district/:district', async (req, res) => {
   try {
     const members = await Member.find({ district: req.params.district });
     
-    res.status(200).json({
+    res.json({
       success: true,
       count: members.length,
       data: members
@@ -203,7 +235,7 @@ router.get('/status/:status', async (req, res) => {
   try {
     const members = await Member.find({ status: req.params.status });
     
-    res.status(200).json({
+    res.json({
       success: true,
       count: members.length,
       data: members
@@ -235,7 +267,7 @@ router.get('/search/:query', async (req, res) => {
       ]
     });
     
-    res.status(200).json({
+    res.json({
       success: true,
       count: members.length,
       data: members
@@ -256,7 +288,7 @@ router.get('/districts/list', async (req, res) => {
   try {
     const districts = await Member.distinct('district');
     
-    res.status(200).json({
+    res.json({
       success: true,
       count: districts.length,
       data: districts
