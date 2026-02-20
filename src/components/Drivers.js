@@ -4,20 +4,24 @@ import './Drivers.css';
 
 const Drivers = () => {
   const navigate = useNavigate();
-  
+
+  // මුල් දත්ත කිහිපයක් ඇතුළත් කිරීම (Sample Data)
   const [drivers, setDrivers] = useState([
-   
+
   ]);
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
+
+  // Initial state එකේ සියලුම fields ඇතුළත් කළා
   const [newDriver, setNewDriver] = useState({
     name: '',
-  
     phone: '',
     idNumber: '',
-    homeTown: ''
+    homeTown: '',
+    status: 'Active',
+    address: ''
   });
 
   const handleInputChange = (e) => {
@@ -30,22 +34,23 @@ const Drivers = () => {
 
   const handleAddDriver = (e) => {
     e.preventDefault();
-    
+
     const driverToAdd = {
-      id: drivers.length + 1,
-      ...newDriver,
-      experience: parseInt(newDriver.experience)
+      id: Date.now(), // වඩාත් ආරක්ෂිත ID එකක් සඳහා
+      ...newDriver
     };
 
     setDrivers([...drivers, driverToAdd]);
     setShowAddForm(false);
-    
+
+    // Form එක reset කිරීම
     setNewDriver({
       name: '',
-    
-    phone: '',
-    idNumber: '',
-    homeTown: ''
+      phone: '',
+      idNumber: '',
+      homeTown: '',
+      status: 'Active',
+      address: ''
     });
 
     alert('Driver added successfully!');
@@ -57,20 +62,24 @@ const Drivers = () => {
     }
   };
 
+  // Search logic එකේ undefined errors මගහරවා ගැනීම
   const filteredDrivers = drivers.filter(driver => {
-    const matchesSearch = 
-      driver.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      driver.licenseNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      driver.phone.includes(searchTerm) ||
-      driver.vehicleAssigned.toLowerCase().includes(searchTerm.toLowerCase());
-    
+    const nameStr = driver.name?.toLowerCase() || '';
+    const idStr = driver.idNumber?.toLowerCase() || '';
+    const phoneStr = driver.phone || '';
+
+    const matchesSearch =
+      nameStr.includes(searchTerm.toLowerCase()) ||
+      idStr.includes(searchTerm.toLowerCase()) ||
+      phoneStr.includes(searchTerm);
+
     const matchesStatus = filterStatus === 'All' || driver.status === filterStatus;
-    
+
     return matchesSearch && matchesStatus;
   });
 
   const getStatusColor = (status) => {
-    switch(status) {
+    switch (status) {
       case 'Active': return 'status-active';
       case 'On Leave': return 'status-leave';
       case 'Training': return 'status-training';
@@ -81,7 +90,6 @@ const Drivers = () => {
 
   return (
     <div className="drivers-page">
-      {/* Back to Home Button */}
       <div className="navigation-header">
         <button className="back-home-btn" onClick={() => navigate('/')}>
           ← Back to Home
@@ -89,31 +97,19 @@ const Drivers = () => {
         <h1>👨‍✈️ Driver Management</h1>
       </div>
 
-      {/* Header */}
-      <div className="drivers-header">
-        <h1>Driver Management</h1>
-        <p>Manage and view all registered drivers</p>
-      </div>
-
-      {/* Controls Section */}
       <div className="drivers-controls">
         <div className="search-filter">
           <div className="search-box">
             <input
               type="text"
-              placeholder="Search by name, license, vehicle..."
+              placeholder="Search by name, ID or phone..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <span className="search-icon">🔍</span>
           </div>
-          
+
           <div className="filter-box">
-            <label>Filter by Status:</label>
-            <select 
-              value={filterStatus} 
-              onChange={(e) => setFilterStatus(e.target.value)}
-            >
+            <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
               <option value="All">All Drivers</option>
               <option value="Active">Active</option>
               <option value="On Leave">On Leave</option>
@@ -123,15 +119,11 @@ const Drivers = () => {
           </div>
         </div>
 
-        <button 
-          className="add-driver-btn"
-          onClick={() => setShowAddForm(!showAddForm)}
-        >
+        <button className="add-driver-btn" onClick={() => setShowAddForm(!showAddForm)}>
           {showAddForm ? '✕ Cancel' : '+ Add New Driver'}
         </button>
       </div>
 
-      {/* Add Driver Form */}
       {showAddForm && (
         <div className="add-driver-form">
           <h2>Register New Driver</h2>
@@ -139,65 +131,27 @@ const Drivers = () => {
             <div className="form-grid">
               <div className="form-group">
                 <label>Full Name *</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={newDriver.name}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="Enter driver's full name"
-                />
+                <input type="text" name="name" value={newDriver.name} onChange={handleInputChange} required />
               </div>
 
-               <div className="form-group">
+              <div className="form-group">
                 <label>ID Number *</label>
-                <input
-                  type="text"
-                  name="idNumber"
-                  value={newDriver.idNumber}
-                  onChange={handleInputChange}
-                  placeholder="Enter ID Number"
-                />
+                <input type="text" name="idNumber" value={newDriver.idNumber} onChange={handleInputChange} required />
               </div>
 
               <div className="form-group">
                 <label>Phone Number *</label>
-                <input
-                  type="text"
-                  name="phone"
-                  value={newDriver.phone}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="+94 77 123 4567"
-                />
+                <input type="text" name="phone" value={newDriver.phone} onChange={handleInputChange} required />
               </div>
-
-             
 
               <div className="form-group">
-                <label>Home Town *</label>
-                <input
-                  type="text"
-                  name="homeTown"
-                  value={newDriver.homeTown}
-                  onChange={handleInputChange}
-                  placeholder="Enter home town"
-                />
+                <label>Home Town</label>
+                <input type="text" name="homeTown" value={newDriver.homeTown} onChange={handleInputChange} />
               </div>
-
-              
-
-              
-
-              
 
               <div className="form-group">
                 <label>Status</label>
-                <select
-                  name="status"
-                  value={newDriver.status}
-                  onChange={handleInputChange}
-                >
+                <select name="status" value={newDriver.status} onChange={handleInputChange}>
                   <option value="Active">Active</option>
                   <option value="On Leave">On Leave</option>
                   <option value="Training">Training</option>
@@ -207,102 +161,49 @@ const Drivers = () => {
 
               <div className="form-group full-width">
                 <label>Address</label>
-                <input
-                  type="text"
-                  name="address"
-                  value={newDriver.address}
-                  onChange={handleInputChange}
-                  placeholder="Driver's address"
-                />
+                <input type="text" name="address" value={newDriver.address} onChange={handleInputChange} />
               </div>
             </div>
 
             <div className="form-actions">
               <button type="submit" className="submit-btn">Register Driver</button>
-              <button type="button" className="cancel-btn" onClick={() => setShowAddForm(false)}>Cancel</button>
             </div>
           </form>
         </div>
       )}
 
-      {/* Driver Statistics */}
+      {/* Statistics Section */}
       <div className="driver-stats">
         <div className="stat-card">
-          <span className="stat-icon">👨‍✈️</span>
-          <div className="stat-info">
-            <h3>Total Drivers</h3>
-            <p>{drivers.length}</p>
-          </div>
+          <h3>Total</h3>
+          <p>{drivers.length}</p>
         </div>
         <div className="stat-card">
-          <span className="stat-icon">✅</span>
-          <div className="stat-info">
-            <h3>Active</h3>
-            <p>{drivers.filter(d => d.status === 'Active').length}</p>
-          </div>
-        </div>
-        <div className="stat-card">
-          <span className="stat-icon">🏖️</span>
-          <div className="stat-info">
-            <h3>On Leave</h3>
-            <p>{drivers.filter(d => d.status === 'On Leave').length}</p>
-          </div>
-        </div>
-        <div className="stat-card">
-          <span className="stat-icon">📚</span>
-          <div className="stat-info">
-            <h3>In Training</h3>
-            <p>{drivers.filter(d => d.status === 'Training').length}</p>
-          </div>
+          <h3>Active</h3>
+          <p>{drivers.filter(d => d.status === 'Active').length}</p>
         </div>
       </div>
 
-      {/* Drivers List */}
+      {/* Driver List Section */}
       <div className="drivers-list">
-        <h2>Registered Drivers</h2>
         {filteredDrivers.length === 0 ? (
-          <div className="no-results">
-            <p>No drivers found</p>
-          </div>
+          <p>No drivers found</p>
         ) : (
           <div className="driver-cards">
             {filteredDrivers.map(driver => (
               <div key={driver.id} className="driver-card">
                 <div className="driver-card-header">
-                  <div className="driver-avatar">
-                    {driver.name.charAt(0)}
-                  </div>
+                  <div className="driver-avatar">{driver.name.charAt(0)}</div>
                   <div className="driver-info">
                     <h3>{driver.name}</h3>
-                    <span className={`driver-status ${getStatusColor(driver.status)}`}>
-                      {driver.status}
-                    </span>
+                    <span className={`driver-status ${getStatusColor(driver.status)}`}>{driver.status}</span>
                   </div>
-                  <button 
-                    className="delete-btn"
-                    onClick={() => handleDeleteDriver(driver.id)}
-                  >
-                    🗑️
-                  </button>
+                  <button className="delete-btn" onClick={() => handleDeleteDriver(driver.id)}>🗑️</button>
                 </div>
-
                 <div className="driver-card-body">
-                  
-                  <div className="driver-detail">
-                    <span className="detail-label">IDNumber:</span>
-                    <span className="detail-value">{driver.idNumber}</span>
-                  </div>
-                  
-                  
-                  <div className="driver-detail">
-                    <span className="detail-label">Home Town:</span>
-                    <span className="detail-value">{driver.homeTown || 'N/A'}</span>
-                  </div>
-                </div>
-
-                <div className="driver-card-footer">
-                  <button className="edit-btn">Edit Details</button>
-                  {/* <button className="schedule-btn">View Schedule</button> */}
+                  <p><strong>ID:</strong> {driver.idNumber}</p>
+                  <p><strong>Phone:</strong> {driver.phone}</p>
+                  <p><strong>Home:</strong> {driver.homeTown}</p>
                 </div>
               </div>
             ))}

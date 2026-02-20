@@ -4,8 +4,7 @@ import './Login.css';
 
 const Login = ({ setIsAuthenticated }) => {
   const navigate = useNavigate();
-  
-  // State for form inputs
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
@@ -13,19 +12,15 @@ const Login = ({ setIsAuthenticated }) => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Check for saved credentials on component mount
+  // Component එක Load වන විට කලින් මතක තබාගත් දත්ත තිබේදැයි බැලීම
   useEffect(() => {
     const savedEmail = localStorage.getItem('rememberedEmail');
-    const savedPassword = localStorage.getItem('rememberedPassword');
-    
-    if (savedEmail && savedPassword) {
+    if (savedEmail) {
       setEmail(savedEmail);
-      setPassword(savedPassword);
       setRememberMe(true);
     }
   }, []);
 
-  // Demo credentials (In real app, this would be from backend)
   const validCredentials = [
     { email: 'admin@transport.com', password: 'admin123', role: 'Admin', name: 'Admin User' },
     { email: 'user@transport.com', password: 'user123', role: 'User', name: 'Regular User' },
@@ -35,26 +30,29 @@ const Login = ({ setIsAuthenticated }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     setError('');
+
+    // සරල Validation එකක්
+    if (!email.includes('@')) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
     setLoading(true);
 
-    // Simulate API call delay
+    // API Call එකක් ලෙස අනුකරණය කිරීම (Simulating API)
     setTimeout(() => {
-      // Check credentials
       const user = validCredentials.find(
-        cred => cred.email === email && cred.password === password
+        cred => cred.email.toLowerCase() === email.toLowerCase() && cred.password === password
       );
 
       if (user) {
-        // Handle "Remember Me"
+        // Remember Me Logic - Password එක save නොකර email එක පමණක් save කිරීම වඩාත් සුදුසුයි
         if (rememberMe) {
           localStorage.setItem('rememberedEmail', email);
-          localStorage.setItem('rememberedPassword', password);
         } else {
           localStorage.removeItem('rememberedEmail');
-          localStorage.removeItem('rememberedPassword');
         }
 
-        // Create user session
         const userSession = {
           email: user.email,
           name: user.name,
@@ -62,150 +60,84 @@ const Login = ({ setIsAuthenticated }) => {
           loginTime: new Date().toISOString(),
         };
 
-        // Save to sessionStorage (clears when browser closes)
         sessionStorage.setItem('user', JSON.stringify(userSession));
-        
-        // Update authentication state
         setIsAuthenticated(true);
-        
-        // Redirect to home page
-        navigate('/');
+        navigate('/', { replace: true }); // replace: true මගින් login එකට ආපසු (Back) යාම වලක්වයි
       } else {
-        setError('Invalid email or password');
+        setError('Invalid email or password. Please try again.');
       }
-      
       setLoading(false);
-    }, 1000);
-  };
-
-  const handleForgotPassword = () => {
-    alert('Password reset link would be sent to your email in a real application.');
+    }, 1200);
   };
 
   return (
     <div className="login-container">
       <div className="login-card">
-        {/* Logo and Title */}
-        <div className="login-header">
-          <div className="logo">🚗</div>
-          <h1>Office Transport System</h1>
-          <p>Welcome back! Please login to continue</p>
-        </div>
+        <header className="login-header">
+          <div className="logo-icon">🚀</div>
+          <h1>Office Transport</h1>
+          <p>Login to manage your daily commute</p>
+        </header>
 
-        {/* Error Message */}
         {error && (
-          <div className="error-message">
-            <span className="error-icon">⚠️</span>
+          <div className="error-banner">
+            <span className="error-icon">❌</span>
             {error}
           </div>
         )}
 
-        {/* Login Form */}
         <form onSubmit={handleSubmit} className="login-form">
-          {/* Email Field */}
           <div className="form-group">
-            <label htmlFor="email">
-              <span className="label-icon">📧</span>
-              Email Address
-            </label>
-            <div className="input-wrapper">
-              <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
-                required
-                disabled={loading}
-              />
-            </div>
+            <label>Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="name@company.com"
+              required
+              autoComplete="email"
+            />
           </div>
 
-          {/* Password Field */}
           <div className="form-group">
-            <label htmlFor="password">
-              <span className="label-icon">🔒</span>
-              Password
-            </label>
-            <div className="input-wrapper password-wrapper">
+            <label>Password</label>
+            <div className="password-input-group">
               <input
                 type={showPassword ? 'text' : 'password'}
-                id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
+                placeholder="••••••••"
                 required
-                disabled={loading}
+                autoComplete="current-password"
               />
               <button
                 type="button"
-                className="toggle-password"
+                className="eye-toggle"
                 onClick={() => setShowPassword(!showPassword)}
               >
-                {showPassword ? '👁️' : '👁️‍🗨️'}
+                {showPassword ? '🔓' : '🔒'}
               </button>
             </div>
           </div>
 
-          {/* Remember Me & Forgot Password */}
-          <div className="form-options">
-            <label className="checkbox-label">
+          <div className="form-actions-row">
+            <label className="remember-me">
               <input
                 type="checkbox"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
-                disabled={loading}
               />
-              <span>Remember me</span>
+              Keep me logged in
             </label>
-            <button
-              type="button"
-              className="forgot-password"
-              onClick={handleForgotPassword}
-              disabled={loading}
-            >
-              Forgot Password?
+            <button type="button" className="text-btn" onClick={() => alert('Contact Admin to reset password')}>
+              Forgot?
             </button>
           </div>
 
-          {/* Login Button */}
-          <button
-            type="submit"
-            className="login-button"
-            disabled={loading}
-          >
-            {loading ? (
-              <>
-                <span className="spinner"></span>
-                Logging in...
-              </>
-            ) : (
-              'Login'
-            )}
+          <button type="submit" className="submit-btn" disabled={loading}>
+            {loading ? <span className="loader"></span> : 'Sign In'}
           </button>
         </form>
-
-        {/* Demo Credentials Info */}
-        {/* <div className="demo-info">
-          <p>📝 Demo Credentials:</p>
-          <div className="demo-credentials">
-            <div>admin@transport.com / admin123</div>
-            <div>user@transport.com / user123</div>
-            <div>manager@transport.com / manager123</div>
-          </div>
-        </div> */}
-
-        {/* Footer */}
-        <div className="login-footer">
-          <p>© 2026 Office Transport System. All rights reserved.</p>
-        </div>
-      </div>
-
-      {/* Background Decoration */}
-      <div className="login-bg-decoration">
-        <div className="circle circle-1"></div>
-        <div className="circle circle-2"></div>
-        <div className="circle circle-3"></div>
       </div>
     </div>
   );

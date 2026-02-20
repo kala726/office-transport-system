@@ -1,17 +1,40 @@
-import React, { useState } from 'react';
-import { getVehicles, addVehicle, deleteVehicle } from '../services/api';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Vehicles.css';
 
 const Vehicles = () => {
   const navigate = useNavigate();
+
+  // මුලින් පෙන්වීම සඳහා නියැදි දත්ත (Sample Data)
   const [vehicles, setVehicles] = useState([
-    
+    {
+      id: 1,
+      registrationNo: 'WP NB-4567',
+      type: 'Van',
+      model: 'Toyota Hiace',
+      capacity: 14,
+      driver: 'Sunil Shantha',
+      status: 'Active',
+      lastMaintenance: '2025-12-10',
+      fuelType: 'Diesel'
+    },
+    {
+      id: 2,
+      registrationNo: 'CP-8890',
+      type: 'Bus',
+      model: 'Mitsubishi Rosa',
+      capacity: 26,
+      driver: 'Nimal Perera',
+      status: 'Maintenance',
+      lastMaintenance: '2026-01-05',
+      fuelType: 'Diesel'
+    }
   ]);
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('All');
+
   const [newVehicle, setNewVehicle] = useState({
     registrationNo: '',
     type: '',
@@ -25,325 +48,137 @@ const Vehicles = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setNewVehicle({
-      ...newVehicle,
-      [name]: value
-    });
+    setNewVehicle(prev => ({ ...prev, [name]: value }));
   };
 
   const handleAddVehicle = (e) => {
     e.preventDefault();
-    
-    // Create new vehicle object
     const vehicleToAdd = {
-      id: vehicles.length + 1,
+      id: Date.now(), // වඩාත් ආරක්ෂිත ID එකක් සඳහා
       ...newVehicle,
       capacity: parseInt(newVehicle.capacity)
     };
 
     setVehicles([...vehicles, vehicleToAdd]);
     setShowAddForm(false);
-    
-    // Reset form
-    setNewVehicle({
-      registrationNo: '',
-      type: '',
-      model: '',
-      capacity: '',
-      driver: '',
-      status: 'Active',
-      lastMaintenance: '',
-      fuelType: ''
-    });
-
-    alert('Vehicle added successfully!');
+    setNewVehicle({ registrationNo: '', type: '', model: '', capacity: '', driver: '', status: 'Active', lastMaintenance: '', fuelType: '' });
+    alert('Vehicle registered successfully!');
   };
 
   const handleDeleteVehicle = (id) => {
-    if (window.confirm('Are you sure you want to delete this vehicle?')) {
-      setVehicles(vehicles.filter(vehicle => vehicle.id !== id));
+    if (window.confirm('Are you sure?')) {
+      setVehicles(vehicles.filter(v => v.id !== id));
     }
   };
 
-  // Filter vehicles based on search and type
-  const filteredVehicles = vehicles.filter(vehicle => {
-    const matchesSearch = 
-      vehicle.registrationNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      vehicle.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      vehicle.driver.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesType = filterType === 'All' || vehicle.type === filterType;
-    
+  const filteredVehicles = vehicles.filter(v => {
+    const matchesSearch = v.registrationNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      v.driver.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesType = filterType === 'All' || v.type === filterType;
     return matchesSearch && matchesType;
   });
 
-  const getStatusColor = (status) => {
-    switch(status) {
-      case 'Active': return 'status-active';
-      case 'Maintenance': return 'status-maintenance';
-      case 'Inactive': return 'status-inactive';
-      default: return '';
-    }
-  };
-
   return (
     <div className="vehicles-page">
+      {/* Navigation & Title */}
       <div className="navigation-header">
-        <button className="back-home-btn" onClick={() => navigate('/')}>
-          ← Back to Home
-        </button>
-        <h1>Vehicle Management</h1>
-      </div>
-      {/* Header */}
-      <div className="vehicles-header">
-        <h1>🚗 Vehicle Management</h1>
-        <p>Manage and view all registered vehicles</p>
-
-        
-      </div>
-      
-
-      {/* Controls Section */}
-      <div className="vehicles-controls">
-        <div className="search-filter">
-          <div className="search-box">
-            <input
-              type="text"
-              placeholder="Search by registration, model, or driver..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <span className="search-icon">🔍</span>
-          </div>
-          
-          <div className="filter-box">
-            <label>Filter by Type:</label>
-            <select 
-              value={filterType} 
-              onChange={(e) => setFilterType(e.target.value)}
-            >
-              <option value="All">All Vehicles</option>
-              <option value="Bus">Buses</option>
-              <option value="Van">Vans</option>
-              <option value="Car">Cars</option>
-              <option value="Truck">Trucks</option>
-            </select>
-          </div>
+        <button className="back-btn" onClick={() => navigate('/')}>← Home</button>
+        <div className="title-section">
+          <h1>🚛 Vehicle Fleet Management</h1>
+          <p>Tracking {vehicles.length} vehicles in your organization</p>
         </div>
+      </div>
 
-        <button 
-          className="add-vehicle-btn"
-          onClick={() => setShowAddForm(!showAddForm)}
-        >
-          {showAddForm ? '✕ Cancel' : '+ Add New Vehicle'}
+      {/* Summary Statistics */}
+      <div className="stats-container">
+        <div className="stat-card blue">
+          <h3>{vehicles.length}</h3>
+          <p>Total Fleet</p>
+        </div>
+        <div className="stat-card green">
+          <h3>{vehicles.filter(v => v.status === 'Active').length}</h3>
+          <p>Available</p>
+        </div>
+        <div className="stat-card orange">
+          <h3>{vehicles.filter(v => v.status === 'Maintenance').length}</h3>
+          <p>In Workshop</p>
+        </div>
+      </div>
+
+      {/* Search & Action Bar */}
+      <div className="action-bar">
+        <div className="search-group">
+          <input
+            type="text"
+            placeholder="Search Registration No..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <select value={filterType} onChange={(e) => setFilterType(e.target.value)}>
+            <option value="All">All Types</option>
+            <option value="Bus">Buses</option>
+            <option value="Van">Vans</option>
+            <option value="Car">Cars</option>
+          </select>
+        </div>
+        <button className="primary-btn" onClick={() => setShowAddForm(!showAddForm)}>
+          {showAddForm ? 'Close Form' : '+ Add Vehicle'}
         </button>
       </div>
 
-      {/* Add Vehicle Form */}
+      {/* Add Vehicle Modal/Form */}
       {showAddForm && (
-        <div className="add-vehicle-form">
-          <h2>Add New Vehicle</h2>
-          <form onSubmit={handleAddVehicle}>
+        <div className="form-modal">
+          <form className="animated-form" onSubmit={handleAddVehicle}>
+            <h2>Register New Vehicle</h2>
             <div className="form-grid">
-              <div className="form-group">
-                <label>Registration Number *</label>
-                <input
-                  type="text"
-                  name="registrationNo"
-                  value={newVehicle.registrationNo}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="e.g., ABC-1234"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Vehicle Type *</label>
-                <select
-                  name="type"
-                  value={newVehicle.type}
-                  onChange={handleInputChange}
-                  required
-                >
-                  <option value="">Select Type</option>
-                  <option value="Bus">Bus</option>
-                  <option value="Van">Van</option>
-                  <option value="Car">Car</option>
-                  <option value="Truck">Truck</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label>Model *</label>
-                <input
-                  type="text"
-                  name="model"
-                  value={newVehicle.model}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="e.g., Toyota Coaster"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Capacity *</label>
-                <input
-                  type="number"
-                  name="capacity"
-                  value={newVehicle.capacity}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="Number of seats"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Assigned Driver</label>
-                <input
-                  type="text"
-                  name="driver"
-                  value={newVehicle.driver}
-                  onChange={handleInputChange}
-                  placeholder="Driver name"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Fuel Type *</label>
-                <select
-                  name="fuelType"
-                  value={newVehicle.fuelType}
-                  onChange={handleInputChange}
-                  required
-                >
-                  <option value="">Select Fuel Type</option>
-                  <option value="Petrol">Petrol</option>
-                  <option value="Diesel">Diesel</option>
-                  <option value="Hybrid">Hybrid</option>
-                  <option value="Electric">Electric</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label>Last Maintenance Date</label>
-                <input
-                  type="date"
-                  name="lastMaintenance"
-                  value={newVehicle.lastMaintenance}
-                  onChange={handleInputChange}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Status</label>
-                <select
-                  name="status"
-                  value={newVehicle.status}
-                  onChange={handleInputChange}
-                >
-                  <option value="Active">Active</option>
-                  <option value="Maintenance">Maintenance</option>
-                  <option value="Inactive">Inactive</option>
-                </select>
-              </div>
+              <input name="registrationNo" placeholder="Reg No (e.g. WP NB-1234)" onChange={handleInputChange} required />
+              <select name="type" onChange={handleInputChange} required>
+                <option value="">Select Type</option>
+                <option value="Bus">Bus</option>
+                <option value="Van">Van</option>
+                <option value="Car">Car</option>
+              </select>
+              <input name="model" placeholder="Model (e.g. Toyota)" onChange={handleInputChange} required />
+              <input name="capacity" type="number" placeholder="Seats" onChange={handleInputChange} required />
+              <input name="driver" placeholder="Assigned Driver" onChange={handleInputChange} />
+              <select name="fuelType" onChange={handleInputChange} required>
+                <option value="">Fuel Type</option>
+                <option value="Diesel">Diesel</option>
+                <option value="Petrol">Petrol</option>
+              </select>
             </div>
-
-            <div className="form-actions">
-              <button type="submit" className="submit-btn">Add Vehicle</button>
-              <button type="button" className="cancel-btn" onClick={() => setShowAddForm(false)}>Cancel</button>
+            <div className="form-buttons">
+              <button type="submit" className="save-btn">Save Vehicle</button>
+              <button type="button" className="cancel-link" onClick={() => setShowAddForm(false)}>Cancel</button>
             </div>
           </form>
         </div>
       )}
 
-      {/* Vehicles Statistics */}
-      <div className="vehicle-stats">
-        <div className="stat-card">
-          <span className="stat-icon">🚌</span>
-          <div className="stat-info">
-            <h3>Total Vehicles</h3>
-            <p>{vehicles.length}</p>
-          </div>
-        </div>
-        <div className="stat-card">
-          <span className="stat-icon">✅</span>
-          <div className="stat-info">
-            <h3>Active</h3>
-            <p>{vehicles.filter(v => v.status === 'Active').length}</p>
-          </div>
-        </div>
-        <div className="stat-card">
-          <span className="stat-icon">🔧</span>
-          <div className="stat-info">
-            <h3>Maintenance</h3>
-            <p>{vehicles.filter(v => v.status === 'Maintenance').length}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Vehicles List */}
-      <div className="vehicles-list">
-        <h2>Registered Vehicles</h2>
-        {filteredVehicles.length === 0 ? (
-          <div className="no-results">
-            <p>No vehicles found</p>
-          </div>
-        ) : (
-          <div className="vehicle-cards">
-            {filteredVehicles.map(vehicle => (
-              <div key={vehicle.id} className="vehicle-card">
-                <div className="vehicle-card-header">
-                  <div className="vehicle-type-icon">
-                    {vehicle.type === 'Bus' && '🚌'}
-                    {vehicle.type === 'Van' && '🚐'}
-                    {vehicle.type === 'Car' && '🚗'}
-                    {vehicle.type === 'Truck' && '🚛'}
-                  </div>
-                  <div className="vehicle-registration">
-                    <h3>{vehicle.registrationNo}</h3>
-                    <span className={`vehicle-status ${getStatusColor(vehicle.status)}`}>
-                      {vehicle.status}
-                    </span>
-                  </div>
-                  <button 
-                    className="delete-btn"
-                    onClick={() => handleDeleteVehicle(vehicle.id)}
-                  >
-                    🗑️
-                  </button>
-                </div>
-
-                <div className="vehicle-card-body">
-                  <div className="vehicle-detail">
-                    <span className="detail-label">Model:</span>
-                    <span className="detail-value">{vehicle.model}</span>
-                  </div>
-                  <div className="vehicle-detail">
-                    <span className="detail-label">Capacity:</span>
-                    <span className="detail-value">{vehicle.capacity} seats</span>
-                  </div>
-                  <div className="vehicle-detail">
-                    <span className="detail-label">Driver:</span>
-                    <span className="detail-value">{vehicle.driver || 'Not Assigned'}</span>
-                  </div>
-                  <div className="vehicle-detail">
-                    <span className="detail-label">Fuel Type:</span>
-                    <span className="detail-value">{vehicle.fuelType}</span>
-                  </div>
-                  <div className="vehicle-detail">
-                    <span className="detail-label">Last Maintenance:</span>
-                    <span className="detail-value">{vehicle.lastMaintenance || 'Not recorded'}</span>
-                  </div>
-                </div>
-
-                <div className="vehicle-card-footer">
-                  <button className="edit-btn">Edit</button>
-                  <button className="schedule-btn">Schedule</button>
-                </div>
+      {/* Vehicle Grid View */}
+      <div className="vehicle-grid">
+        {filteredVehicles.map(v => (
+          <div key={v.id} className={`v-card ${v.status.toLowerCase()}`}>
+            <div className="v-card-top">
+              <span className="v-type">{v.type}</span>
+              <span className={`v-status-dot ${v.status.toLowerCase()}`}></span>
+            </div>
+            <div className="v-card-mid">
+              <h2>{v.registrationNo}</h2>
+              <p><strong>{v.model}</strong></p>
+              <div className="v-info-row">
+                <span>👥 {v.capacity} Seats</span>
+                <span>⛽ {v.fuelType}</span>
               </div>
-            ))}
+              <p className="v-driver">👨‍✈️ {v.driver || 'No driver assigned'}</p>
+            </div>
+            <div className="v-card-bottom">
+              <button className="del-icon-btn" onClick={() => handleDeleteVehicle(v.id)}>🗑️</button>
+              <button className="edit-link">Edit Details</button>
+            </div>
           </div>
-        )}
+        ))}
       </div>
     </div>
   );
