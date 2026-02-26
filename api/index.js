@@ -3,35 +3,38 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 
-// Models (මේවා ඔබේ models folder එකේ ඇති බව තහවුරු කරගන්න)
-const Vehicle = require('../models/Vehicle');
-const Member = require('../models/Member');
-const Driver = require('../models/Driver');
-const Trip = require('../models/Trip');
-
-// Routes (මේවා ඔබේ routes folder එකේ ඇති බව තහවුරු කරගන්න)
-const vehicleRoutes = require('../routes/vehicleRoutes');
-const memberRoutes = require('../routes/memberRoutes');
-const driverRoutes = require('../routes/driverRoutes');
-const tripRoutes = require('../routes/tripRoutes');
-
+// Config load කිරීම
 dotenv.config();
+
 const app = express();
 
-// Middlewares
+// --- 1. Middlewares ---
 app.use(cors());
 app.use(express.json());
 
-// MongoDB Connection
+// --- 2. MongoDB Connection ---
 mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log("✅ MongoDB Connected!"))
-    .catch(err => console.log("❌ Connection Error:", err));
+    .then(() => console.log("✅ MongoDB Connected Successfully!"))
+    .catch(err => console.error("❌ MongoDB Connection Error:", err));
 
-// Routes සම්බන්ධ කිරීම
-app.use('/api/vehicles', vehicleRoutes);
-app.use('/api/members', memberRoutes);
-app.use('/api/drivers', driverRoutes);
-app.use('/api/trips', tripRoutes);
+// --- 3. API Routes ---
+// Routes files නිවැරදිව require කිරීම (Path එක පරීක්ෂා කරන්න)
+app.use('/api/vehicles', require('./routes/vehicleRoutes'));
+app.use('/api/members', require('./routes/memberRoutes'));
+app.use('/api/drivers', require('./routes/driverRoutes'));
+app.use('/api/trips', require('./routes/tripRoutes'));
 
-// Vercel සඳහා ඉතාම වැදගත් කොටස (Listen වෙනුවට export කරන්න)
+// --- 4. Health Check Route ---
+app.get("/", (req, res) => {
+    res.status(200).send("Fleet Management API is live and running!");
+});
+
+// --- 5. Local Development සඳහා පමණක් Port එකට සවන් දීම ---
+// Vercel වලදී මෙය අවශ්‍ය නොවන නමුත් Local එකේදී අවශ්‍ය වේ
+if (process.env.NODE_ENV !== 'production') {
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+}
+
+// Vercel සඳහා app එක export කිරීම
 module.exports = app;

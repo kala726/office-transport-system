@@ -27,9 +27,9 @@ router.post('/add', async (req, res) => {
 router.delete('/:id', async (req, res) => {
     try {
         await Driver.findByIdAndDelete(req.params.id);
-        res.json({ message: "Driver removed successfully" });
+        res.json({ message: "Driver deleted" });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json(err);
     }
 });
 

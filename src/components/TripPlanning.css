@@ -17,7 +17,7 @@
   background: white;
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   height: fit-content;
 }
 
@@ -218,7 +218,7 @@
 
 .plan-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(40,167,69,0.3);
+  box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
 }
 
 .plan-btn:disabled {
@@ -248,7 +248,7 @@
   padding: 25px;
   background: white;
   border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .print-header {
@@ -302,7 +302,9 @@
   .three-column-layout {
     grid-template-columns: 1fr;
   }
-}/* Add these styles to your existing TripPlanning.css */
+}
+
+/* Add these styles to your existing TripPlanning.css */
 
 .three-column-layout {
   display: grid;
@@ -321,7 +323,7 @@
   background: white;
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   height: fit-content;
 }
 
@@ -358,7 +360,7 @@
 .member-item:hover {
   background: #f5f5f5;
   transform: translateY(-2px);
-  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
 }
 
 .member-item.selected {
@@ -393,7 +395,7 @@
 .driver-item:hover {
   background: #f5f5f5;
   transform: translateY(-2px);
-  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
 }
 
 .driver-item.selected {
@@ -453,7 +455,7 @@
 .vehicle-item:hover {
   background: #f5f5f5;
   transform: translateY(-2px);
-  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
 }
 
 .vehicle-item.selected {
@@ -533,7 +535,7 @@
 
 .plan-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(40,167,69,0.3);
+  box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
 }
 
 .plan-btn:disabled {
@@ -564,7 +566,7 @@
   padding: 25px;
   background: white;
   border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .print-header {
@@ -621,11 +623,12 @@
   .three-column-layout {
     grid-template-columns: 1fr;
   }
-  
+
   .print-header {
     grid-template-columns: 1fr;
   }
 }
+
 /* Navigation Header */
 .navigation-header {
   display: flex;
@@ -635,7 +638,7 @@
   background: white;
   padding: 15px 25px;
   border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .back-home-btn {
@@ -655,7 +658,7 @@
 
 .back-home-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
 }
 
 .navigation-header h1 {
@@ -671,7 +674,7 @@
   padding: 40px 30px;
   border-radius: 15px;
   margin-bottom: 30px;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
 .members-header h1 {
@@ -687,6 +690,7 @@
   font-size: 1.1rem;
   opacity: 0.9;
 }
+
 /* Controls */
 .members-controls {
   display: flex;
@@ -721,7 +725,7 @@
 .search-box input:focus {
   border-color: #6b8cff;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(107,140,255,0.1);
+  box-shadow: 0 0 0 3px rgba(107, 140, 255, 0.1);
 }
 
 .search-icon {
@@ -731,6 +735,7 @@
   transform: translateY(-50%);
   color: #666;
 }
+
 /* Add these styles at the end of your TripPlanning.css */
 
 .check-mark {
@@ -749,7 +754,8 @@
 }
 
 .member-item {
-  position: relative; /* For check-mark positioning */
+  position: relative;
+  /* For check-mark positioning */
 }
 
 .driver-item {
@@ -784,7 +790,7 @@
   padding: 15px;
   background: white;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .selected-members-list {
@@ -821,6 +827,7 @@
 .selected-member-chip button:hover {
   background: #c82333;
 }
+
 /* TripPlanning.css - Add these new styles */
 
 .trip-layout {
@@ -835,7 +842,7 @@
   background: white;
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .section-header {
@@ -958,7 +965,7 @@
   background: white;
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .summary-card h3 {
@@ -1160,7 +1167,7 @@
   padding: 25px;
   background: white;
   border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .print-header {
@@ -1211,12 +1218,187 @@
   .trip-layout {
     grid-template-columns: 1fr;
   }
-  
+
   .filter-controls {
     flex-direction: column;
   }
-  
+
   .print-header {
     grid-template-columns: 1fr;
   }
+}
+
+/* --- Print Styles added as requested --- */
+@media print {
+
+  /* Hide everything in the body by default */
+  body * {
+    visibility: hidden;
+  }
+
+  /* Make only the printReport element and its children visible */
+  #printReport,
+  #printReport * {
+    visibility: visible;
+  }
+
+  /* Reset positioning so the print div starts at the top-left of the page */
+  #printReport {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  /* Fully hide elements that have the 'no-print' class */
+  .no-print {
+    display: none !important;
+  }
+
+  /* Fix styling for the driver print box so it formats cleanly without backgrounds */
+  #printReport .driver-print-box {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin-bottom: 20px;
+  }
+
+  #printReport .driver-print-box h3 {
+    margin-top: 0;
+    border-bottom: 1px solid #000;
+    padding-bottom: 5px;
+    display: inline-block;
+  }
+}
+
+.signature-container {
+  margin-top: 30px;
+  font-family: 'Iskoola Pota', sans-serif;
+  /* සිංහල අකුරු සඳහා */
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.signature-row {
+  margin-bottom: 20px;
+}
+
+.sig-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 20px;
+}
+
+.sig-space {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+.v-details-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.print-hr {
+  border: 0;
+  border-top: 1px dashed #ccc;
+  margin: 15px 0;
+}
+
+/* මුද්‍රණය සඳහා පමණක් විශේෂිත Styles */
+@media print {
+  .no-print {
+    display: none;
+  }
+
+  .print-section {
+    box-shadow: none !important;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+/* Screen එකේදී පෙන්වන්නේ නැතිවීමට */
+.only-for-print {
+  display: none;
+}
+
+/* Print කරන විට (PDF) පමණක් වැඩ කරන Styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .only-for-print {
+    display: block !important;
+    margin-top: 30px;
+  }
+
+  .signature-container-print {
+    font-family: 'Iskoola Pota', sans-serif;
+    font-size: 13px;
+  }
+
+  .sig-row {
+    margin-bottom: 25px;
+  }
+
+  .sig-title {
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+
+  .sig-flex-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 25px;
+    align-items: flex-end;
+  }
+
+  .sig-label-box {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    min-width: 250px;
+  }
+
+  .print-separator {
+    border-top: 1px dashed #666;
+    margin: 20px 0;
+  }
+
+  .vehicle-details-summary {
+    display: flex;
+    justify-content: space-between;
+    border: 1px solid #000;
+    padding: 8px;
+    margin-top: 10px;
+  }
+}
+
+/* Small Search Bars for Drivers/Vehicles */
+.small-search-container {
+  margin-bottom: 15px;
+}
+
+.small-search-bar {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.small-search-bar:focus {
+  border-color: #17a2b8;
+  outline: none;
+  box-shadow: 0 0 5px rgba(23, 162, 184, 0.3);
 }
