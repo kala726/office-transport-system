@@ -5,7 +5,7 @@ import './Drivers.css';
 
 const Drivers = () => {
   const navigate = useNavigate();
-  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+  const API_URL = process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:5000');
   // States
   const [drivers, setDrivers] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);

@@ -9,7 +9,7 @@ const HomePage = ({ onLogout }) => {
   const [members, setMembers] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const navigate = useNavigate();
-  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+  const API_URL = process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:5000');
 
   // Get user info from session
   const user = JSON.parse(sessionStorage.getItem('user') || '{}');
