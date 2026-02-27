@@ -13,9 +13,33 @@ app.use(cors());
 app.use(express.json());
 
 // --- 2. MongoDB Connection ---
-mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log("✅ MongoDB Connected Successfully!"))
-    .catch(err => console.error("❌ MongoDB Connection Error:", err));
+let isConnected = false;
+
+const connectDB = async () => {
+    if (isConnected) {
+        console.log('✅ Using existing database connection');
+        return;
+    }
+
+    try {
+        const db = await mongoose.connect(process.env.MONGODB_URI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            serverSelectionTimeoutMS: 5000 // Timeout early if connection fails
+        });
+        isConnected = db.connections[0].readyState === 1;
+        console.log('✅ New MongoDB Connection Established!');
+    } catch (err) {
+        console.error("❌ MongoDB Connection Error:", err);
+    }
+};
+
+// Vercel වලදී හැම request එකකදීම Database එකට connect වෙලාද බලන්න ඕනේ
+app.use(async (req, res, next) => {
+    await connectDB();
+    next();
+});
+
 
 // --- 3. API Routes ---
 // Routes files නිවැරදිව require කිරීම (Path එක පරීක්ෂා කරන්න)
