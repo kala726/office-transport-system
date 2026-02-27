@@ -14,22 +14,22 @@ app.use(express.json());
 
 // --- 2. MongoDB Connection ---
 let isConnected = false;
+let connectionError = null;
 
 const connectDB = async () => {
     if (isConnected) {
-        console.log('✅ Using existing database connection');
         return;
     }
 
     try {
         const db = await mongoose.connect(process.env.MONGODB_URI, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-            serverSelectionTimeoutMS: 5000 // Timeout early if connection fails
+            serverSelectionTimeoutMS: 5000
         });
         isConnected = db.connections[0].readyState === 1;
+        connectionError = null;
         console.log('✅ New MongoDB Connection Established!');
     } catch (err) {
+        connectionError = err.message;
         console.error("❌ MongoDB Connection Error:", err);
     }
 };
@@ -60,7 +60,8 @@ app.get("/api/test-db", async (req, res) => {
             uriExists: !!uri,
             uriPrefix: uri ? uri.substring(0, 15) + "..." : "none",
             isConnected: isConnected,
-            readyState: mongoose.connection.readyState
+            readyState: mongoose.connection.readyState,
+            error: connectionError
         });
     } catch (e) {
         res.status(500).json({ error: e.message });
