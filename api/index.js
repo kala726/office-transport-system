@@ -52,5 +52,20 @@ app.get("/", (req, res) => {
     res.status(200).send("Fleet Management API is live and running!");
 });
 
+app.get("/api/test-db", async (req, res) => {
+    try {
+        const uri = process.env.MONGODB_URI;
+        res.status(200).json({
+            message: "Test endpoint",
+            uriExists: !!uri,
+            uriPrefix: uri ? uri.substring(0, 15) + "..." : "none",
+            isConnected: isConnected,
+            readyState: mongoose.connection.readyState
+        });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 // Vercel සඳහා app එක export කිරීම
 module.exports = app;
