@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import html2pdf from 'html2pdf.js';
 import './TripPlanning.css';
 
 const TripPlanning = () => {
@@ -114,6 +115,31 @@ const TripPlanning = () => {
     setTripTown('');
     setTripDate('');
     setTripPlanned(false);
+  };
+
+  const handleDownloadPdf = () => {
+    const element = document.getElementById('printReport');
+    
+    // Temporarily hide the "no-print" elements during PDF generation
+    const noPrintElements = element.querySelectorAll('.no-print');
+    noPrintElements.forEach(el => {
+      el.style.display = 'none';
+    });
+
+    const opt = {
+      margin:       10,
+      filename:     `Trip_Plan_${tripDate || 'Schedule'}.pdf`,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2 },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().from(element).set(opt).save().then(() => {
+      // Restore display property
+      noPrintElements.forEach(el => {
+        el.style.display = '';
+      });
+    });
   };
 
   const isCapacityFull = selectedVehicle && selectedMembers.length > selectedVehicle.capacity;
@@ -301,7 +327,10 @@ const TripPlanning = () => {
         <div className="print-section shadow" id="printReport">
           <div className="section-header no-print">
             <h2>OFFICE TRANSPORT REPORT</h2>
-            <button className="print-btn" onClick={() => window.print()}>🖨️ Print PDF</button>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button className="print-btn" onClick={() => window.print()}>🖨️ Print</button>
+              <button className="print-btn" onClick={handleDownloadPdf}>⬇️ Download PDF</button>
+            </div>
           </div>
 
           <div className="print-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #333', paddingBottom: '10px', marginBottom: '20px' }}>
