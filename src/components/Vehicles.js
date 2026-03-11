@@ -126,6 +126,8 @@ const Vehicles = () => {
               <option value="Bus">Buses</option>
               <option value="Van">Vans</option>
               <option value="Car">Cars</option>
+              <option value="Lorry">Lorries</option>
+              <option value="Jeep">Jeeps</option>
             </select>
           </div>
         </div>
@@ -150,6 +152,8 @@ const Vehicles = () => {
                   <option value="Bus">Bus</option>
                   <option value="Van">Van</option>
                   <option value="Car">Car</option>
+                  <option value="Lorry">Lorry</option>
+                  <option value="Jeep">Jeep</option>
                 </select>
               </div>
               <div className="form-group">
@@ -185,7 +189,7 @@ const Vehicles = () => {
         {filteredVehicles.map(v => (
           <div key={v._id} className="vehicle-card">
             <div className="vehicle-card-header">
-              <div className="vehicle-type-icon">{v.type === 'Bus' ? '🚌' : v.type === 'Van' ? '🚐' : '🚗'}</div>
+              <div className="vehicle-type-icon">{v.type === 'Bus' ? '🚌' : v.type === 'Van' ? '🚐' : v.type === 'Lorry' ? '🚚' : v.type === 'Jeep' ? '🚙' : '🚗'}</div>
               <div className="vehicle-registration">
                 <h3>{v.registrationNo}</h3>
                 <span className={`vehicle-status status-${(v.status || 'Active').toLowerCase()}`}>

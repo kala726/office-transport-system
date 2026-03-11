@@ -234,10 +234,17 @@ const TripPlanning = () => {
           </div>
 
           <div className="print-header">
+            <div className="print-box" style={{ visibility: 'hidden' }}></div>
+            <div className="print-box" style={{ textAlign: 'center' }}>
+              <h3>Trip Location</h3>
+              <p><strong>Destination:</strong> {
+                [...new Set(selectedMembers.map(m => m.district || m.nearTown).filter(Boolean))].join(', ') || 'Not specified'
+              }</p>
+            </div>
             <div className="print-box">
-              <h3>Driver Details</h3>
-              <p><strong>Name:</strong> {selectedDriver?.name}</p>
-              <p><strong>Phone:</strong> {selectedDriver?.phone}</p>
+              <h3>Driver & Vehicle Details</h3>
+              <p><strong>Driver:</strong> {selectedDriver?.name} ({selectedDriver?.phone})</p>
+              <p><strong>Vehicle:</strong> {selectedVehicle?.type || 'Vehicle'} - {selectedVehicle?.registrationNo}</p>
             </div>
           </div>
 
