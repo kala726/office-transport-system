@@ -55,9 +55,33 @@ const TripPlanning = () => {
     return matchesSearch;
   });
 
-  const availableTowns = tripDistrict
-    ? [...new Set(members.filter(m => m.district === tripDistrict && m.nearTown).map(m => m.nearTown))]
-    : [];
+  const SL_DISTRICTS = {
+    Ampara: ['Ampara', 'Kalmunai', 'Samanthurai', 'Akkaraipattu', 'Pottuvil'],
+    Anuradhapura: ['Anuradhapura', 'Kekirawa', 'Thambuttegama', 'Eppawala', 'Medawachchiya'],
+    Badulla: ['Badulla', 'Bandarawela', 'Haputale', 'Mahiyanganaya', 'Welimada'],
+    Batticaloa: ['Batticaloa', 'Kattankudy', 'Eravur', 'Valachchenai'],
+    Colombo: ['Colombo', 'Dehiwala', 'Moratuwa', 'Maharagama', 'Nugegoda', 'Homagama', 'Avissawella'],
+    Galle: ['Galle', 'Ambalangoda', 'Elpitiya', 'Hikkaduwa', 'Koggala', 'Karapitiya'],
+    Gampaha: ['Gampaha', 'Negombo', 'Kelaniya', 'Wattala', 'Minuwangoda', 'Kadawatha'],
+    Hambantota: ['Hambantota', 'Tangalle', 'Ambalantota', 'Beliatta', 'Tissamaharama'],
+    Jaffna: ['Jaffna', 'Chavakachcheri', 'Point Pedro', 'Kankesanthurai', 'Nallur'],
+    Kalutara: ['Kalutara', 'Panadura', 'Horana', 'Matugama', 'Bandaragama'],
+    Kandy: ['Kandy', 'Peradeniya', 'Gampola', 'Akurana', 'Kadugannawa', 'Nawalapitiya'],
+    Kegalle: ['Kegalle', 'Mawanella', 'Ruwanwella', 'Warakapola', 'Yatiyanthota'],
+    Kilinochchi: ['Kilinochchi', 'Pallai', 'Paranthan', 'Pooneryn'],
+    Kurunegala: ['Kurunegala', 'Kuliyapitiya', 'Polgahawela', 'Pannala', 'Mawathagama'],
+    Mannar: ['Mannar', 'Murunkan', 'Nanaddan', 'Pesalai'],
+    Matale: ['Matale', 'Dambulla', 'Galewela', 'Ukuwela', 'Sigiriya'],
+    Matara: ['Matara', 'Weligama', 'Hakmana', 'Dikwella', 'Akuressa'],
+    Monaragala: ['Monaragala', 'Bibile', 'Wellawaya', 'Kataragama', 'Buttala'],
+    Mullaitivu: ['Mullaitivu', 'Mankulam', 'Puthukkudiyiruppu', 'Oddusuddan'],
+    Nuwara_Eliya: ['Nuwara Eliya', 'Hatton', 'Talawakelle', 'Ginigathhena'],
+    Polonnaruwa: ['Polonnaruwa', 'Kaduruwela', 'Hingurakgoda', 'Medirigiriya'],
+    Puttalam: ['Puttalam', 'Chilaw', 'Nattandiya', 'Wennappuwa', 'Marawila'],
+    Ratnapura: ['Ratnapura', 'Embilipitiya', 'Balangoda', 'Pelmadulla', 'Kuruwita'],
+    Trincomalee: ['Trincomalee', 'Kinniya', 'Muthur', 'Kantale'],
+    Vavuniya: ['Vavuniya', 'Nedunkeni', 'Settikulam']
+  };
 
   const filteredDrivers = (drivers || []).filter(d =>
     (d.name || "").toLowerCase().includes(driverSearchTerm.toLowerCase()) ||
@@ -142,11 +166,8 @@ const TripPlanning = () => {
                   style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
                 >
                   <option value="">Select District</option>
-                  <option value="Colombo">Colombo</option>
-                  <option value="Gampaha">Gampaha</option>
-                  <option value="Kalutara">Kalutara</option>
-                  {[...new Set(members.map(m => m.district).filter(d => !['Colombo', 'Gampaha', 'Kalutara'].includes(d) && d))].map(d => (
-                    <option key={d} value={d}>{d}</option>
+                  {Object.keys(SL_DISTRICTS).map(d => (
+                    <option key={d} value={d}>{d.replace('_', ' ')}</option>
                   ))}
                 </select>
               </div>
@@ -160,9 +181,9 @@ const TripPlanning = () => {
                   style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
                 >
                   <option value="">Select Town</option>
-                  {availableTowns.map(town => (
+                  {tripDistrict && SL_DISTRICTS[tripDistrict] ? SL_DISTRICTS[tripDistrict].map(town => (
                     <option key={town} value={town}>{town}</option>
-                  ))}
+                  )) : null}
                 </select>
               </div>
             </div>
@@ -283,23 +304,23 @@ const TripPlanning = () => {
             <button className="print-btn" onClick={() => window.print()}>🖨️ Print PDF</button>
           </div>
 
-          <div className="print-header">
-            <div className="print-box">
-              <h3>Trip Schedule</h3>
-              <p><strong>Date:</strong> {tripDate || 'Not specified'}</p>
+          <div className="print-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #333', paddingBottom: '10px', marginBottom: '20px' }}>
+            <div className="print-box" style={{ flex: 1 }}>
+              <h3 style={{ margin: '0 0 5px 0' }}>Trip Schedule</h3>
+              <p style={{ margin: 0 }}><strong>Date:</strong> {tripDate || 'Not specified'}</p>
             </div>
-            <div className="print-box" style={{ textAlign: 'center' }}>
-              <h3>Trip Location</h3>
-              <p><strong>Destination:</strong> {
-                tripTown && tripDistrict ? `${tripTown}, ${tripDistrict}` : 
-                tripDistrict ? tripDistrict : 
+            <div className="print-box" style={{ flex: 1, textAlign: 'center' }}>
+              <h3 style={{ margin: '0 0 5px 0' }}>Trip Location</h3>
+              <p style={{ margin: 0 }}><strong>Destination:</strong> {
+                tripTown && tripDistrict ? `${tripTown}, ${tripDistrict.replace('_', ' ')}` : 
+                tripDistrict ? tripDistrict.replace('_', ' ') : 
                 tripTown ? tripTown : 'Not specified'
               }</p>
             </div>
-            <div className="print-box" style={{ textAlign: 'right' }}>
-              <h3>Driver & Vehicle Details</h3>
-              <p><strong>Driver:</strong> {selectedDriver?.name} ({selectedDriver?.phone})</p>
-              <p><strong>Vehicle:</strong> {selectedVehicle?.type || 'Vehicle'} - {selectedVehicle?.registrationNo}</p>
+            <div className="print-box" style={{ flex: 1, textAlign: 'right' }}>
+              <h3 style={{ margin: '0 0 5px 0' }}>Driver & Vehicle Details</h3>
+              <p style={{ margin: '0 0 5px 0' }}><strong>Driver:</strong> {selectedDriver?.name} ({selectedDriver?.phone})</p>
+              <p style={{ margin: 0 }}><strong>Vehicle:</strong> {selectedVehicle?.type || 'Vehicle'} - {selectedVehicle?.registrationNo}</p>
             </div>
           </div>
 
