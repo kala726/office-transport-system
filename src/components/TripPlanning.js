@@ -19,7 +19,12 @@ const TripPlanning = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [driverSearchTerm, setDriverSearchTerm] = useState('');
   const [vehicleSearchTerm, setVehicleSearchTerm] = useState('');
-  const [filterDistrict, setFilterDistrict] = useState('All');
+  
+  // Trip Details for Print & Planning
+  const [tripDistrict, setTripDistrict] = useState('');
+  const [tripTown, setTripTown] = useState('');
+  const [tripDate, setTripDate] = useState('');
+  
   const [tripPlanned, setTripPlanned] = useState(false);
 
   useEffect(() => {
@@ -47,9 +52,12 @@ const TripPlanning = () => {
       (m.district || "").toLowerCase().includes(searchLower) ||
       (m.address || "").toLowerCase().includes(searchLower) ||
       (m.nearTown || "").toLowerCase().includes(searchLower);
-    const matchesDistrict = filterDistrict === 'All' || m.district === filterDistrict;
-    return matchesSearch && matchesDistrict;
+    return matchesSearch;
   });
+
+  const availableTowns = tripDistrict
+    ? [...new Set(members.filter(m => m.district === tripDistrict && m.nearTown).map(m => m.nearTown))]
+    : [];
 
   const filteredDrivers = (drivers || []).filter(d =>
     (d.name || "").toLowerCase().includes(driverSearchTerm.toLowerCase()) ||
@@ -78,7 +86,9 @@ const TripPlanning = () => {
     setSearchTerm('');
     setDriverSearchTerm('');
     setVehicleSearchTerm('');
-    setFilterDistrict('All');
+    setTripDistrict('');
+    setTripTown('');
+    setTripDate('');
     setTripPlanned(false);
   };
 
@@ -99,22 +109,62 @@ const TripPlanning = () => {
             <span className="member-count">{selectedMembers.length} Selected</span>
           </div>
 
-          <div className="table-filters">
-            <div className="search-box">
+          <div className="table-filters" style={{ flexDirection: 'column', gap: '10px' }}>
+            <div className="search-box" style={{ width: '100%' }}>
               <input
                 type="text"
                 placeholder="🔍 Search name, ID, address, town or district..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                style={{ width: '100%' }}
               />
             </div>
-            <div className="filter-controls">
-              <select value={filterDistrict} onChange={(e) => setFilterDistrict(e.target.value)}>
-                <option value="All">All Districts</option>
-                <option value="Colombo">Colombo</option>
-                <option value="Gampaha">Gampaha</option>
-                <option value="Kalutara">Kalutara</option>
-              </select>
+            
+            <div className="trip-details-filters" style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+              <div className="filter-controls" style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontSize: '12px', marginBottom: '5px', fontWeight: 'bold' }}>Trip Date</label>
+                <input 
+                  type="date" 
+                  value={tripDate} 
+                  onChange={(e) => setTripDate(e.target.value)} 
+                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
+                />
+              </div>
+
+              <div className="filter-controls" style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontSize: '12px', marginBottom: '5px', fontWeight: 'bold' }}>Destination District</label>
+                <select 
+                  value={tripDistrict} 
+                  onChange={(e) => {
+                    setTripDistrict(e.target.value);
+                    setTripTown(''); // Reset town when district changes
+                  }}
+                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
+                >
+                  <option value="">Select District</option>
+                  <option value="Colombo">Colombo</option>
+                  <option value="Gampaha">Gampaha</option>
+                  <option value="Kalutara">Kalutara</option>
+                  {[...new Set(members.map(m => m.district).filter(d => !['Colombo', 'Gampaha', 'Kalutara'].includes(d) && d))].map(d => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="filter-controls" style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontSize: '12px', marginBottom: '5px', fontWeight: 'bold' }}>Destination Town</label>
+                <select 
+                  value={tripTown} 
+                  onChange={(e) => setTripTown(e.target.value)}
+                  disabled={!tripDistrict}
+                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
+                >
+                  <option value="">Select Town</option>
+                  {availableTowns.map(town => (
+                    <option key={town} value={town}>{town}</option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
 
@@ -234,14 +284,19 @@ const TripPlanning = () => {
           </div>
 
           <div className="print-header">
-            <div className="print-box" style={{ visibility: 'hidden' }}></div>
+            <div className="print-box">
+              <h3>Trip Schedule</h3>
+              <p><strong>Date:</strong> {tripDate || 'Not specified'}</p>
+            </div>
             <div className="print-box" style={{ textAlign: 'center' }}>
               <h3>Trip Location</h3>
               <p><strong>Destination:</strong> {
-                [...new Set(selectedMembers.map(m => m.district || m.nearTown).filter(Boolean))].join(', ') || 'Not specified'
+                tripTown && tripDistrict ? `${tripTown}, ${tripDistrict}` : 
+                tripDistrict ? tripDistrict : 
+                tripTown ? tripTown : 'Not specified'
               }</p>
             </div>
-            <div className="print-box">
+            <div className="print-box" style={{ textAlign: 'right' }}>
               <h3>Driver & Vehicle Details</h3>
               <p><strong>Driver:</strong> {selectedDriver?.name} ({selectedDriver?.phone})</p>
               <p><strong>Vehicle:</strong> {selectedVehicle?.type || 'Vehicle'} - {selectedVehicle?.registrationNo}</p>
