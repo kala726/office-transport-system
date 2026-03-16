@@ -351,11 +351,20 @@
   display: flex;
   justify-content: space-between;
   margin-bottom: 12px;
+  border-bottom: 1px dashed #f0f0f0;
+  padding-bottom: 8px;
+}
+
+.driver-detail:last-child {
+  border-bottom: none;
 }
 
 .detail-label {
   color: #666;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .detail-value {

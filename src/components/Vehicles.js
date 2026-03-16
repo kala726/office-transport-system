@@ -12,7 +12,7 @@ const Vehicles = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('All');
 
-  const [newVehicle, setNewVehicle] = useState({
+  const initialVehicleState = {
     registrationNo: '',
     type: '',
     model: '',
@@ -20,7 +20,10 @@ const Vehicles = () => {
     driver: '',
     status: 'Active',
     fuelType: ''
-  });
+  };
+
+  const [newVehicle, setNewVehicle] = useState(initialVehicleState);
+  const [editingVehicleId, setEditingVehicleId] = useState(null);
 
   const API_URL = process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:5000');
 
@@ -45,17 +48,42 @@ const Vehicles = () => {
   const handleAddVehicle = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(`${API_URL}/api/vehicles/add`, {
+      const payload = {
         ...newVehicle,
         capacity: parseInt(newVehicle.capacity)
-      });
-      setVehicles([...vehicles, res.data]);
+      };
+
+      if (editingVehicleId) {
+        const res = await axios.put(`${API_URL}/api/vehicles/${editingVehicleId}`, payload);
+        const updatedVehicle = res.data.data || res.data;
+        setVehicles(vehicles.map(v => v._id === editingVehicleId ? updatedVehicle : v));
+        alert('Vehicle updated successfully!');
+      } else {
+        const res = await axios.post(`${API_URL}/api/vehicles`, payload);
+        const addedVehicle = res.data.data || res.data;
+        setVehicles([...(Array.isArray(vehicles) ? vehicles : []), addedVehicle]);
+        alert('Vehicle registered successfully!');
+      }
+
       setShowAddForm(false);
-      setNewVehicle({ registrationNo: '', type: '', model: '', capacity: '', driver: '', status: 'Active', fuelType: '' });
-      alert('Vehicle registered successfully!');
+      setNewVehicle(initialVehicleState);
+      setEditingVehicleId(null);
     } catch (err) {
       alert('Failed to save vehicle. Is the backend running?');
     }
+  };
+
+  const handleEditClick = (vehicle) => {
+    setNewVehicle(vehicle);
+    setEditingVehicleId(vehicle._id);
+    setShowAddForm(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCancelForm = () => {
+    setShowAddForm(false);
+    setNewVehicle(initialVehicleState);
+    setEditingVehicleId(null);
   };
 
   const handleDeleteVehicle = async (id) => {
@@ -131,23 +159,23 @@ const Vehicles = () => {
             </select>
           </div>
         </div>
-        <button className="add-vehicle-btn" onClick={() => setShowAddForm(!showAddForm)}>
-          {showAddForm ? 'Close Form' : '+ Add New Vehicle'}
+        <button className="add-vehicle-btn" onClick={() => showAddForm ? handleCancelForm() : setShowAddForm(true)}>
+          {showAddForm ? '✕ Close Form' : '+ Add New Vehicle'}
         </button>
       </div>
 
       {showAddForm && (
         <div className="add-vehicle-form">
-          <h2>Register New Vehicle</h2>
+          <h2>{editingVehicleId ? 'Edit Vehicle Details' : 'Register New Vehicle'}</h2>
           <form onSubmit={handleAddVehicle}>
             <div className="form-grid">
               <div className="form-group">
                 <label>Registration No</label>
-                <input name="registrationNo" placeholder="WP NB-1234" onChange={handleInputChange} required />
+                <input name="registrationNo" placeholder="WP NB-1234" value={newVehicle.registrationNo} onChange={handleInputChange} required />
               </div>
               <div className="form-group">
                 <label>Vehicle Type</label>
-                <select name="type" onChange={handleInputChange} required>
+                <select name="type" value={newVehicle.type} onChange={handleInputChange} required>
                   <option value="">Select</option>
                   <option value="Bus">Bus</option>
                   <option value="Van">Van</option>
@@ -158,19 +186,19 @@ const Vehicles = () => {
               </div>
               <div className="form-group">
                 <label>Model</label>
-                <input name="model" placeholder="Toyota Hiace" onChange={handleInputChange} required />
+                <input name="model" placeholder="Toyota Hiace" value={newVehicle.model} onChange={handleInputChange} required />
               </div>
               <div className="form-group">
                 <label>Capacity (Seats)</label>
-                <input name="capacity" type="number" onChange={handleInputChange} required />
+                <input name="capacity" type="number" value={newVehicle.capacity} onChange={handleInputChange} required />
               </div>
               <div className="form-group">
                 <label>Assigned Driver</label>
-                <input name="driver" placeholder="Driver Name" onChange={handleInputChange} />
+                <input name="driver" placeholder="Driver Name" value={newVehicle.driver} onChange={handleInputChange} />
               </div>
               <div className="form-group">
                 <label>Fuel Type</label>
-                <select name="fuelType" onChange={handleInputChange} required>
+                <select name="fuelType" value={newVehicle.fuelType} onChange={handleInputChange} required>
                   <option value="">Select</option>
                   <option value="Diesel">Diesel</option>
                   <option value="Petrol">Petrol</option>
@@ -178,8 +206,8 @@ const Vehicles = () => {
               </div>
             </div>
             <div className="form-actions">
-              <button type="submit" className="submit-btn">Save Vehicle</button>
-              <button type="button" className="cancel-btn" onClick={() => setShowAddForm(false)}>Cancel</button>
+              <button type="submit" className="submit-btn">{editingVehicleId ? 'Update Vehicle' : 'Save Vehicle'}</button>
+              <button type="button" className="cancel-btn" onClick={handleCancelForm}>Cancel</button>
             </div>
           </form>
         </div>
@@ -217,7 +245,7 @@ const Vehicles = () => {
               </div>
             </div>
             <div className="vehicle-card-footer">
-              <button className="edit-btn">Edit Details</button>
+              <button className="edit-btn" onClick={() => handleEditClick(v)}>Edit Details</button>
               <button className="schedule-btn">Maintenance</button>
             </div>
           </div>

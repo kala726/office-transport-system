@@ -26,6 +26,7 @@ const Members = () => {
   };
 
   const [newMember, setNewMember] = useState(initialMemberState);
+  const [editingMemberId, setEditingMemberId] = useState(null);
 
   useEffect(() => {
     fetchMembers();
@@ -62,18 +63,40 @@ const Members = () => {
 
   const handleAddMember = async (e) => {
     e.preventDefault();
-    const memberData = { ...newMember, memberId: getNextId() };
     try {
-      const res = await axios.post(`${API_URL}/api/members/add`, memberData);
-      const addedMember = res.data.data || res.data;
-      setMembers([...(Array.isArray(members) ? members : []), addedMember]);
+      if (editingMemberId) {
+        const res = await axios.put(`${API_URL}/api/members/${editingMemberId}`, newMember);
+        const updatedMember = res.data.data || res.data;
+        setMembers(members.map(m => m._id === editingMemberId ? updatedMember : m));
+        alert('Member updated successfully!');
+      } else {
+        const memberData = { ...newMember, memberId: getNextId() };
+        const res = await axios.post(`${API_URL}/api/members`, memberData);
+        const addedMember = res.data.data || res.data;
+        setMembers([...(Array.isArray(members) ? members : []), addedMember]);
+        alert('Member registered successfully!');
+      }
+
       setShowAddForm(false);
       setNewMember(initialMemberState);
-      alert('Member registered successfully!');
+      setEditingMemberId(null);
     } catch (err) {
       console.error("Save error:", err);
       alert('Failed to save to database.');
     }
+  };
+
+  const handleEditClick = (member) => {
+    setNewMember(member);
+    setEditingMemberId(member._id);
+    setShowAddForm(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCancelForm = () => {
+    setShowAddForm(false);
+    setNewMember(initialMemberState);
+    setEditingMemberId(null);
   };
 
   const handleDeleteMember = async (id) => {
@@ -149,7 +172,7 @@ const Members = () => {
             </div>
           </div>
         </div>
-        <button className="add-member-btn" onClick={() => setShowAddForm(!showAddForm)}>
+        <button className="add-member-btn" onClick={() => showAddForm ? handleCancelForm() : setShowAddForm(true)}>
           {showAddForm ? '✕ Close Form' : '+ Register Member'}
         </button>
       </div>
@@ -157,7 +180,7 @@ const Members = () => {
       {/* Registration Form */}
       {showAddForm && (
         <div className="add-member-form">
-          <h2>New Member Registration</h2>
+          <h2>{editingMemberId ? 'Edit Member Details' : 'New Member Registration'}</h2>
           <form onSubmit={handleAddMember}>
             <div className="form-grid">
               <div className="form-group">
@@ -200,7 +223,14 @@ const Members = () => {
                 <input className="readonly-field" value={getNextId()} readOnly />
               </div>
             </div>
-            <button type="submit" className="add-member-btn">Save Member Details</button>
+            <div className="form-actions" style={{display: 'flex', gap: '10px', marginTop: '15px'}}>
+              <button type="submit" className="add-member-btn" style={{flex: 1}}>
+                {editingMemberId ? 'Update Member' : 'Save Member Details'}
+              </button>
+              <button type="button" className="add-member-btn" style={{flex: 1, background: '#6c757d'}} onClick={handleCancelForm}>
+                Cancel
+              </button>
+            </div>
           </form>
         </div>
       )}
@@ -262,7 +292,7 @@ const Members = () => {
                   </div>
                 </div>
                 <div className="member-card-footer">
-                  <button className="edit-btn">Edit</button>
+                  <button className="edit-btn" onClick={() => handleEditClick(member)}>Edit</button>
                   <button className="schedule-btn">History</button>
                 </div>
               </div>
