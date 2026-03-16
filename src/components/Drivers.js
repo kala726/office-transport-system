@@ -22,13 +22,14 @@ const Drivers = () => {
   };
 
   const [newDriver, setNewDriver] = useState(initialDriverState);
+  const [editingDriverId, setEditingDriverId] = useState(null);
 
   // --- 1. Database එකෙන් Driversලා ගෙන්වා ගැනීම ---
   useEffect(() => {
     const fetchDrivers = async () => {
       try {
         const res = await axios.get(`${API_URL}/api/drivers`);
-        setDrivers(res.data);
+        setDrivers(res.data.data || res.data);
       } catch (err) {
         console.error("Drivers ලබා ගැනීමේ දෝෂයක්:", err);
       }
@@ -41,19 +42,41 @@ const Drivers = () => {
     setNewDriver({ ...newDriver, [name]: value });
   };
 
-  // --- 2. Driver කෙනෙක් Database එකට Save කිරීම ---
+  // --- 2. Driver කෙනෙක් Database එකට Save කිරීම හෝ Edit කිරීම ---
   const handleAddDriver = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(`${API_URL}/api/drivers/add`, newDriver);
-      setDrivers([...drivers, res.data]);
+      if (editingDriverId) {
+        const res = await axios.put(`${API_URL}/api/drivers/${editingDriverId}`, newDriver);
+        const updatedDriver = res.data.data || res.data;
+        setDrivers(drivers.map(d => d._id === editingDriverId ? updatedDriver : d));
+        alert('Driver updated successfully!');
+      } else {
+        const res = await axios.post(`${API_URL}/api/drivers`, newDriver);
+        const addedDriver = res.data.data || res.data;
+        setDrivers([...(Array.isArray(drivers) ? drivers : []), addedDriver]);
+        alert('Driver registered successfully!');
+      }
       setShowAddForm(false);
       setNewDriver(initialDriverState);
-      alert('Driver registered successfully!');
+      setEditingDriverId(null);
     } catch (err) {
       console.error("Save error:", err);
       alert('Failed to save driver. Check if backend is running!');
     }
+  };
+
+  const handleEditClick = (driver) => {
+    setNewDriver(driver);
+    setEditingDriverId(driver._id);
+    setShowAddForm(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCancelForm = () => {
+    setShowAddForm(false);
+    setNewDriver(initialDriverState);
+    setEditingDriverId(null);
   };
 
   // --- 3. Driver කෙනෙක් Database එකෙන් මැකීම ---
@@ -70,7 +93,7 @@ const Drivers = () => {
     }
   };
 
-  const filteredDrivers = drivers.filter(driver => {
+  const filteredDrivers = (Array.isArray(drivers) ? drivers : []).filter(driver => {
     const nameStr = driver.name?.toLowerCase() || '';
     const idStr = driver.idNumber?.toLowerCase() || '';
     const phoneStr = driver.phone || '';
@@ -135,7 +158,7 @@ const Drivers = () => {
           </div>
         </div>
 
-        <button className="add-driver-btn" onClick={() => setShowAddForm(!showAddForm)}>
+        <button className="add-driver-btn" onClick={() => showAddForm ? handleCancelForm() : setShowAddForm(true)}>
           {showAddForm ? '✕ Cancel' : '+ Add New Driver'}
         </button>
       </div>
@@ -143,7 +166,7 @@ const Drivers = () => {
       {/* Add Driver Form */}
       {showAddForm && (
         <div className="add-driver-form">
-          <h2>Register New Driver</h2>
+          <h2>{editingDriverId ? 'Edit Driver Details' : 'Register New Driver'}</h2>
           <form onSubmit={handleAddDriver}>
             <div className="form-grid">
               <div className="form-group">
@@ -177,7 +200,9 @@ const Drivers = () => {
               </div>
             </div>
             <div className="form-actions">
-              <button type="submit" className="add-driver-btn">Register Driver</button>
+              <button type="submit" className="add-driver-btn">
+                {editingDriverId ? 'Update Driver' : 'Register Driver'}
+              </button>
             </div>
           </form>
         </div>
@@ -189,14 +214,14 @@ const Drivers = () => {
           <div className="stat-icon">👥</div>
           <div className="stat-info">
             <h3>Total Drivers</h3>
-            <p>{drivers.length}</p>
+            <p>{(Array.isArray(drivers) ? drivers : []).length}</p>
           </div>
         </div>
         <div className="stat-card">
           <div className="stat-icon">✅</div>
           <div className="stat-info">
             <h3>Active Now</h3>
-            <p>{drivers.filter(d => d.status === 'Active').length}</p>
+            <p>{(Array.isArray(drivers) ? drivers : []).filter(d => d.status === 'Active').length}</p>
           </div>
         </div>
       </div>
@@ -223,21 +248,25 @@ const Drivers = () => {
 
                 <div className="driver-card-body">
                   <div className="driver-detail">
-                    <span className="detail-label">ID Number:</span>
-                    <span className="detail-value">{driver.idNumber}</span>
+                    <span className="detail-label">📍 Home Town:</span>
+                    <span className="detail-value">{driver.homeTown}</span>
                   </div>
                   <div className="driver-detail">
-                    <span className="detail-label">Phone:</span>
+                    <span className="detail-label">🏠 Address:</span>
+                    <span className="detail-value">{driver.address || 'N/A'}</span>
+                  </div>
+                  <div className="driver-detail">
+                    <span className="detail-label">📞 Phone:</span>
                     <span className="detail-value">{driver.phone}</span>
                   </div>
                   <div className="driver-detail">
-                    <span className="detail-label">Home Town:</span>
-                    <span className="detail-value">{driver.homeTown}</span>
+                    <span className="detail-label">🆔 ID Card:</span>
+                    <span className="detail-value">{driver.idNumber || 'N/A'}</span>
                   </div>
                 </div>
 
                 <div className="driver-card-footer">
-                  <button className="edit-btn">Edit Details</button>
+                  <button className="edit-btn" onClick={() => handleEditClick(driver)}>Edit Details</button>
                   <button className="schedule-btn">View Schedule</button>
                 </div>
               </div>
