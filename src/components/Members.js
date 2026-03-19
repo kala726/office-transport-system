@@ -56,9 +56,15 @@ const Members = () => {
 
   const getNextId = () => {
     if (!members || members.length === 0) return 'EMP001';
-    const lastId = members[members.length - 1].memberId || "EMP000";
-    const numericPart = parseInt(lastId.replace('EMP', ''));
-    return `EMP${(numericPart + 1).toString().padStart(3, '0')}`;
+    
+    // The backend returns members sorted by createdAt descending, so find the highest numeric ID safely
+    const maxNumber = Math.max(...members.map(m => {
+      if (!m.memberId) return 0;
+      const numericPart = parseInt(m.memberId.replace(/\D/g, ''));
+      return isNaN(numericPart) ? 0 : numericPart;
+    }));
+    
+    return `EMP${(maxNumber + 1).toString().padStart(3, '0')}`;
   };
 
   const handleAddMember = async (e) => {

@@ -12,6 +12,10 @@ const memberSchema = new mongoose.Schema({
     required: [true, 'Member name is required'],
     trim: true 
   },
+  idNumber: {
+    type: String,
+    trim: true
+  },
   district: { 
     type: String, 
     required: [true, 'District is required'],
