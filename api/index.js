@@ -41,11 +41,10 @@ app.use(async (req, res, next) => {
 });
 
 // --- 3. API Routes ---
-// Routes files නිවැරදිව require කිරීම
-app.use('/api/vehicles', require('./routes/vehicleRoutes'));
-app.use('/api/members', require('./routes/memberRoutes'));
-app.use('/api/drivers', require('./routes/driverRoutes'));
-app.use('/api/trips', require('./routes/tripRoutes'));
+// Import the routes from the root routes directory (which contain the fixes and correct schemas)
+app.use('/api/vehicles', require('../routes/vehicles'));
+app.use('/api/members', require('../routes/members'));
+app.use('/api/drivers', require('../routes/drivers'));
 
 // --- 4. Health Check Route ---
 app.get("/", (req, res) => {
