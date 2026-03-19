@@ -61,7 +61,7 @@ const memberSchema = new mongoose.Schema({
 });
 
 // Generate memberId before saving if not provided
-memberSchema.pre('save', async function(next) {
+memberSchema.pre('save', async function() {
   if (!this.memberId) {
     const lastMember = await this.constructor.findOne().sort({ createdAt: -1 });
     let nextNumber = 1;
@@ -75,7 +75,6 @@ memberSchema.pre('save', async function(next) {
     
     this.memberId = `EMP${String(nextNumber).padStart(3, '0')}`;
   }
-  next();
 });
 
 module.exports = mongoose.model('Member', memberSchema);
