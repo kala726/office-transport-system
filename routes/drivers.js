@@ -53,13 +53,15 @@ router.get('/:id', async (req, res) => {
 // POST /api/drivers
 router.post('/', async (req, res) => {
   try {
-    // Check if license number already exists
-    const existingDriver = await Driver.findOne({ licenseNo: req.body.licenseNo });
-    if (existingDriver) {
-      return res.status(400).json({
-        success: false,
-        message: 'Driver with this license number already exists'
-      });
+    // Check if license number already exists if provided
+    if (req.body.licenseNo) {
+      const existingDriver = await Driver.findOne({ licenseNo: req.body.licenseNo });
+      if (existingDriver) {
+        return res.status(400).json({
+          success: false,
+          message: 'Driver with this license number already exists'
+        });
+      }
     }
 
     const driver = new Driver(req.body);

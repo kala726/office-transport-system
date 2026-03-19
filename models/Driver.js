@@ -6,15 +6,29 @@ const driverSchema = new mongoose.Schema({
     required: [true, 'Driver name is required'],
     trim: true 
   },
-  licenseNo: { 
-    type: String, 
-    required: [true, 'License number is required'],
-    unique: true,
+  idNumber: { 
+    type: String,
     trim: true 
   },
   phone: { 
     type: String, 
     required: [true, 'Phone number is required'],
+    trim: true 
+  },
+  homeTown: {
+    type: String,
+    trim: true
+  },
+  address: { 
+    type: String 
+  },
+  status: { 
+    type: String, 
+    default: 'Active' 
+  },
+  // Legacy or optional fields
+  licenseNo: { 
+    type: String, 
     trim: true 
   },
   email: { 
@@ -24,16 +38,7 @@ const driverSchema = new mongoose.Schema({
   },
   experience: { 
     type: Number, 
-    required: [true, 'Experience is required'],
     min: [0, 'Experience cannot be negative']
-  },
-  address: { 
-    type: String 
-  },
-  status: { 
-    type: String, 
-    enum: ['Available', 'On Trip', 'Off', 'Training'],
-    default: 'Available' 
   },
   vehicleAssigned: { 
     type: String,
