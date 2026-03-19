@@ -16,9 +16,16 @@ app.use(express.json());
 let isConnected = false;
 let connectionError = null;
 
+// Disable Mongoose global buffering to prevent hanging on connection failure
+mongoose.set('bufferCommands', false);
+
 const connectDB = async () => {
-    if (isConnected) {
-        return;
+    if (isConnected) return true;
+    
+    if (!process.env.MONGODB_URI) {
+        connectionError = 'MONGODB_URI is missing in Vercel Environment Variables';
+        console.error("❌", connectionError);
+        return false;
     }
 
     try {
@@ -28,15 +35,24 @@ const connectDB = async () => {
         isConnected = db.connections[0].readyState === 1;
         connectionError = null;
         console.log('✅ New MongoDB Connection Established!');
+        return true;
     } catch (err) {
         connectionError = err.message;
-        console.error("❌ MongoDB Connection Error:", err);
+        console.error("❌ MongoDB Connection Error:", err.message);
+        return false;
     }
 };
 
 // Vercel වලදී හැම request එකකදීම Database එකට connect වෙලාද බලන්න ඕනේ
 app.use(async (req, res, next) => {
-    await connectDB();
+    const connected = await connectDB();
+    if (!connected) {
+        return res.status(500).json({ 
+            success: false, 
+            message: "Database connection failed",
+            error: connectionError 
+        });
+    }
     next();
 });
 
