@@ -26,8 +26,8 @@ const connectDB = async () => {
             return null;
         }
 
-        // Clean up URI (Vercel sometimes passes literal double quotes if the user pasted them)
-        const cleanURI = process.env.MONGODB_URI.replace(/^["']|["']$/g, '');
+        // Clean up URI globally (Vercel sometimes mangles it with trailing or scattered literal quotes)
+        const cleanURI = process.env.MONGODB_URI.replace(/["']/g, '');
 
         cached.promise = mongoose.connect(cleanURI, opts).then(async (mongoose) => {
             console.log('✅ New MongoDB Connection Established!');
