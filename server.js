@@ -15,6 +15,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Ensure the database connects on every serverless request
+app.use(async (req, res, next) => {
+  const conn = await connectDB();
+  if (!conn) {
+    return res.status(500).json({ success: false, message: 'Database Connection Failed' });
+  }
+  next();
+});
+
 // Import Routes
 const vehicleRoutes = require('./routes/vehicles');
 const driverRoutes = require('./routes/drivers');
