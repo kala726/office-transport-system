@@ -26,10 +26,10 @@ const HomePage = ({ onLogout }) => {
     const fetchData = async () => {
       try {
         const driversRes = await axios.get(`${API_URL}/api/drivers`);
-        setDrivers(driversRes.data || []);
+        setDrivers(driversRes.data?.data || driversRes.data || []);
 
         const membersRes = await axios.get(`${API_URL}/api/members`);
-        setMembers(membersRes.data.data || membersRes.data || []);
+        setMembers(membersRes.data?.data || membersRes.data || []);
       } catch (err) {
         console.error("Error fetching data for search:", err);
       }
@@ -37,12 +37,12 @@ const HomePage = ({ onLogout }) => {
     fetchData();
   }, []);
 
-  const filteredDrivers = drivers.filter(driver =>
-    driver.name?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredDrivers = (Array.isArray(drivers) ? drivers : []).filter(driver =>
+    driver?.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const filteredMembers = members.filter(member =>
-    member.name?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredMembers = (Array.isArray(members) ? members : []).filter(member =>
+    member?.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const showSearchResults = searchTerm.trim().length > 0;
