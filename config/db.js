@@ -26,7 +26,10 @@ const connectDB = async () => {
             return null;
         }
 
-        cached.promise = mongoose.connect(process.env.MONGODB_URI, opts).then(async (mongoose) => {
+        // Clean up URI (Vercel sometimes passes literal double quotes if the user pasted them)
+        const cleanURI = process.env.MONGODB_URI.replace(/^["']|["']$/g, '');
+
+        cached.promise = mongoose.connect(cleanURI, opts).then(async (mongoose) => {
             console.log('✅ New MongoDB Connection Established!');
             try {
                 // Drop the problematic unique index on licenseNo if it exists from legacy schemas
