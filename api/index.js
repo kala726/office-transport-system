@@ -13,14 +13,13 @@ app.use(cors());
 app.use(express.json());
 
 // --- 2. MongoDB Connection ---
-let isConnected = false;
 let connectionError = null;
 
 // Disable Mongoose global buffering to prevent hanging on connection failure
 mongoose.set('bufferCommands', false);
 
 const connectDB = async () => {
-    if (isConnected) return true;
+    if (mongoose.connection.readyState === 1) return true;
     
     if (!process.env.MONGODB_URI) {
         connectionError = 'MONGODB_URI is missing in Vercel Environment Variables';
@@ -29,10 +28,9 @@ const connectDB = async () => {
     }
 
     try {
-        const db = await mongoose.connect(process.env.MONGODB_URI, {
+        await mongoose.connect(process.env.MONGODB_URI, {
             serverSelectionTimeoutMS: 5000
         });
-        isConnected = db.connections[0].readyState === 1;
         connectionError = null;
         console.log('✅ New MongoDB Connection Established!');
         return true;
@@ -74,7 +72,6 @@ app.get("/api/test-db", async (req, res) => {
             message: "Test endpoint",
             uriExists: !!uri,
             uriPrefix: uri ? uri.substring(0, 15) + "..." : "none",
-            isConnected: isConnected,
             readyState: mongoose.connection.readyState,
             error: connectionError
         });
