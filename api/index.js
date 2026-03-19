@@ -15,11 +15,19 @@ app.use(express.json());
 // --- 2. MongoDB Connection ---
 let connectionError = null;
 
-// Disable Mongoose global buffering to prevent hanging on connection failure
+// Disable Mongoose global buffering
 mongoose.set('bufferCommands', false);
 
+// Global cache for serverless environments (prevents connection pooling and multiple concurrent connection attempts)
+let cached = global.mongoose;
+if (!cached) {
+    cached = global.mongoose = { conn: null, promise: null };
+}
+
 const connectDB = async () => {
-    if (mongoose.connection.readyState === 1) return true;
+    if (cached.conn) {
+        return true;
+    }
     
     if (!process.env.MONGODB_URI) {
         connectionError = 'MONGODB_URI is missing in Vercel Environment Variables';
@@ -27,16 +35,26 @@ const connectDB = async () => {
         return false;
     }
 
-    try {
-        await mongoose.connect(process.env.MONGODB_URI, {
-            serverSelectionTimeoutMS: 5000
+    if (!cached.promise) {
+        console.log('🔄 Initiating new MongoDB Connection...');
+        const opts = {
+            serverSelectionTimeoutMS: 5000,
+        };
+        cached.promise = mongoose.connect(process.env.MONGODB_URI, opts).then((mongoose) => {
+            console.log('✅ New MongoDB Connection Established!');
+            return mongoose;
+        }).catch((err) => {
+            connectionError = err.message;
+            console.error("❌ MongoDB Connection Error:", err.message);
+            cached.promise = null;
+            throw err;
         });
-        connectionError = null;
-        console.log('✅ New MongoDB Connection Established!');
+    }
+
+    try {
+        cached.conn = await cached.promise;
         return true;
     } catch (err) {
-        connectionError = err.message;
-        console.error("❌ MongoDB Connection Error:", err.message);
         return false;
     }
 };
