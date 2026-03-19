@@ -112,7 +112,7 @@ const Members = () => {
     }
   };
 
-  const filteredMembers = (members || []).filter(member => {
+  const filteredMembers = (Array.isArray(members) ? members : []).filter(member => {
     const name = member.name || "";
     const mId = member.memberId || "";
     const town = member.nearTown || "";

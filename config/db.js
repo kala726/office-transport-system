@@ -26,8 +26,15 @@ const connectDB = async () => {
             return null;
         }
 
-        cached.promise = mongoose.connect(process.env.MONGODB_URI, opts).then((mongoose) => {
+        cached.promise = mongoose.connect(process.env.MONGODB_URI, opts).then(async (mongoose) => {
             console.log('✅ New MongoDB Connection Established!');
+            try {
+                // Drop the problematic unique index on licenseNo if it exists from legacy schemas
+                await mongoose.connection.collection('drivers').dropIndex('licenseNo_1');
+                console.log('✅ Dropped legacy licenseNo unique index');
+            } catch (e) {
+                // Index might not exist, which is fine
+            }
             return mongoose;
         }).catch((err) => {
             console.error("❌ MongoDB Connection Error:", err.message);

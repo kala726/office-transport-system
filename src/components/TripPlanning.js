@@ -46,10 +46,10 @@ const TripPlanning = () => {
     fetchData();
   }, []);
 
-  const filteredMembers = (members || []).filter(m => {
+  const filteredMembers = (Array.isArray(members) ? members : []).filter(m => {
     const searchLower = searchTerm.toLowerCase();
     const matchesSearch = (m.name || "").toLowerCase().includes(searchLower) ||
-      (m.memberId || "").toLowerCase().includes(searchLower) ||
+      (m.memberId || m.idNumber || "").toLowerCase().includes(searchLower) ||
       (m.district || "").toLowerCase().includes(searchLower) ||
       (m.address || "").toLowerCase().includes(searchLower) ||
       (m.nearTown || "").toLowerCase().includes(searchLower);
@@ -84,12 +84,12 @@ const TripPlanning = () => {
     Vavuniya: ['Vavuniya', 'Nedunkeni', 'Settikulam']
   };
 
-  const filteredDrivers = (drivers || []).filter(d =>
+  const filteredDrivers = (Array.isArray(drivers) ? drivers : []).filter(d =>
     (d.name || "").toLowerCase().includes(driverSearchTerm.toLowerCase()) ||
     (d.phone || "").toLowerCase().includes(driverSearchTerm.toLowerCase())
   );
 
-  const filteredVehicles = (vehicles || []).filter(v =>
+  const filteredVehicles = (Array.isArray(vehicles) ? vehicles : []).filter(v =>
     (v.registrationNo || "").toLowerCase().includes(vehicleSearchTerm.toLowerCase()) ||
     (v.capacity?.toString() || "").includes(vehicleSearchTerm)
   );
@@ -265,7 +265,7 @@ const TripPlanning = () => {
                   className={`driver-item ${selectedDriver?._id === d._id ? 'selected' : ''}`}
                   onClick={() => setSelectedDriver(d)}
                 >
-                  <div className="driver-avatar">{d.name[0]}</div>
+                  <div className="driver-avatar">{(d.name || "D")[0]}</div>
                   <div className="driver-details">
                     <strong>{d.name}</strong>
                     <span>{d.phone}</span>
